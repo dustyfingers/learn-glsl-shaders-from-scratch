@@ -10,10 +10,11 @@ const vertexShader = `
 `;
 
 const fragmentShader = `
+    uniform vec3 u_color;
     void main() {
         // gl_FragColor is an rgba-format value
         // this shader MUST set the value of gl_FragColor
-        gl_FragColor = vec4(0.1, 0.4, 0.2, 0.3);
+        gl_FragColor = vec4(u_color, 1.0);
     }
 `;
 
@@ -25,7 +26,12 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const geometry = new three.PlaneGeometry(2, 2);
+
+const uniforms = {
+    u_color: { value: new three.Color(0xff0000) },
+};
 const material = new three.ShaderMaterial({
+    uniforms,
     vertexShader,
     fragmentShader,
 });
