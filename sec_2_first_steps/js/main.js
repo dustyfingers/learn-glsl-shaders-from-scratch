@@ -20,7 +20,7 @@ const fragmentShader = `
         // vec3 color = vec3(u_mouse.x/u_resolution.x, 0.0, u_mouse.y/u_resolution.y);
         // as time value passed in increases, we need to map that value between -1 and 1
         // thats why we are using sin and cos here
-        vec3 color = vec3((sin(u_time) + 1.0)/2.0, 0.0, (cos(u_time) + 1.0)/2.0);
+        vec3 color = vec3((sin(u_time) + 1.0)/2.0, (atan(u_time) + 1.0)/2.0, (cos(u_time) + 1.0)/2.0);
         gl_FragColor = vec4(color, 1.0);
     }
 `;
