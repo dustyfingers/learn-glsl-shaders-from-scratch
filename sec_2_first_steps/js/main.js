@@ -7,11 +7,13 @@ const vertexShader = `
     // in three.js the uv value is passed into the vertex shader behind the scenes
     // but what about if we need the uv in the fragment shader?
     // we use a varying!
-    varying vec2 v_uv;
+    // varying vec2 v_uv;
+    varying vec3 v_position;
 
     void main() {
         // assign uv passed into vertx shader to the varying we want to pass to the fragment shader
-        v_uv = uv;
+        // v_uv = uv;
+        v_position = position;
 
         // try multiplying the position value passed into vec4 to change the scale of the object!
         // this is essentially an 'identity' transformation as-is
@@ -27,7 +29,8 @@ const fragmentShader = `
     uniform float u_time;
 
     // varyings are values passed from the vertex shader to the fragment shader
-    varying vec2 v_uv;
+    // varying vec2 v_uv;
+    varying vec3 v_position;
 
     void main() {
         // gl_FragColor is an rgba-format value
@@ -40,17 +43,33 @@ const fragmentShader = `
         // as time value passed in increases, we need to map that value between -1 and 1
         // thats why we are using sin and cos here
         // every number passed into sin will output a corresponding y value on the unit circle
-        // every number passed into cos will output a corresponding y value on the unit circle
+        // every number passed into cos will output a corresponding x value on the unit circle
         // and on and on for the unit circle definition of the trig functions
         // vec3 color = vec3((sin(u_time) + 1.0)/2.0, (atan(u_time) + 1.0)/2.0, (cos(u_time) + 1.0)/2.0);
 
         // gradient from top to bottom - mix between colors over the space of the canvas
         // vec2 uv = gl_FragCoord.xy/u_resolution;
         // vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), uv.y);
-
         
         // color gradient using varying
-        vec3 color = vec3(v_uv.x, v_uv.y, 0.0);
+        // vec3 color = vec3(v_uv.x, v_uv.y, 0.0);
+        // gl_FragColor = vec4(color, 1.0);
+
+        // using the clamp method
+        // vec3 color = vec3(0.0);
+        // color.r = clamp(v_position.x, 0.0, 1.0);
+        // color.g = clamp(v_position.y, 0.0, 1.0);
+        // gl_FragColor = vec4(color, 1.0);
+
+        // using the step and smoothstep methods - create a hard edge around colors
+        // vec3 color = vec3(0.0);
+        // color.r = step(0.0, v_position.x);
+        // color.g = step(0.0, v_position.y);
+        // gl_FragColor = vec4(color, 1.0);
+
+        vec3 color = vec3(0.0);
+        color.r = smoothstep(0.0, 0.1, v_position.x);
+        color.g = smoothstep(0.0, 0.1, v_position.y);
         gl_FragColor = vec4(color, 1.0);
     }
 `;
