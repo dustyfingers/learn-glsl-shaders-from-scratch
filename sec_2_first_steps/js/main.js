@@ -2,18 +2,33 @@ import * as three from 'three';
 
 // shaders
 const vertexShader = `
+    // this shader MUST set the value of gl_Position
+
+    // in three.js the uv value is passed into the vertex shader behind the scenes
+    // but what about if we need the uv in the fragment shader?
+    // we use a varying!
+    varying vec2 v_uv;
+
     void main() {
+        // assign uv passed into vertx shader to the varying we want to pass to the fragment shader
+        v_uv = uv;
+
         // try multiplying the position value passed into vec4 to change the scale of the object!
-        // this shader MUST set the value of gl_Position
+        // this is essentially an 'identity' transformation as-is
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
 `;
 
 const fragmentShader = `
+    // uniforms are values passed in by javascript
     uniform vec3 u_color;
     uniform vec2 u_mouse;
     uniform vec2 u_resolution;
     uniform float u_time;
+
+    // varyings are values passed from the vertex shader to the fragment shader
+    varying vec2 v_uv;
+
     void main() {
         // gl_FragColor is an rgba-format value
         // this shader MUST set the value of gl_FragColor
@@ -30,8 +45,12 @@ const fragmentShader = `
         // vec3 color = vec3((sin(u_time) + 1.0)/2.0, (atan(u_time) + 1.0)/2.0, (cos(u_time) + 1.0)/2.0);
 
         // gradient from top to bottom - mix between colors over the space of the canvas
-        vec2 uv = gl_FragCoord.xy/u_resolution;
-        vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), uv.y);
+        // vec2 uv = gl_FragCoord.xy/u_resolution;
+        // vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), uv.y);
+
+        
+        // color gradient using varying
+        vec3 color = vec3(v_uv.x, v_uv.y, 0.0);
         gl_FragColor = vec4(color, 1.0);
     }
 `;
