@@ -13,10 +13,14 @@ const fragmentShader = `
     uniform vec3 u_color;
     uniform vec2 u_mouse;
     uniform vec2 u_resolution;
+    uniform float u_time;
     void main() {
         // gl_FragColor is an rgba-format value
         // this shader MUST set the value of gl_FragColor
-        vec3 color = vec3(u_mouse.x/u_resolution.x, 0.0, u_mouse.y/u_resolution.y);
+        // vec3 color = vec3(u_mouse.x/u_resolution.x, 0.0, u_mouse.y/u_resolution.y);
+        // as time value passed in increases, we need to map that value between -1 and 1
+        // thats why we are using sin and cos here
+        vec3 color = vec3((sin(u_time) + 1.0)/2.0, 0.0, (cos(u_time) + 1.0)/2.0);
         gl_FragColor = vec4(color, 1.0);
     }
 `;
@@ -28,6 +32,7 @@ const renderer = new three.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+const clock = new three.Clock();
 const geometry = new three.PlaneGeometry(2, 2);
 
 const uniforms = {
@@ -64,6 +69,7 @@ function animate() {
     // actually renders the scene
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
+    uniforms.u_time.value = clock.getElapsedTime();
 }
 
 function onWindowResize(event) {
