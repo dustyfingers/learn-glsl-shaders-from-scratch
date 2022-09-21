@@ -17,10 +17,21 @@ const fragmentShader = `
     void main() {
         // gl_FragColor is an rgba-format value
         // this shader MUST set the value of gl_FragColor
+
+        // change color based on position of mouse
         // vec3 color = vec3(u_mouse.x/u_resolution.x, 0.0, u_mouse.y/u_resolution.y);
+
+        // make color change over time
         // as time value passed in increases, we need to map that value between -1 and 1
         // thats why we are using sin and cos here
-        vec3 color = vec3((sin(u_time) + 1.0)/2.0, (atan(u_time) + 1.0)/2.0, (cos(u_time) + 1.0)/2.0);
+        // every number passed into sin will output a corresponding y value on the unit circle
+        // every number passed into cos will output a corresponding y value on the unit circle
+        // and on and on for the unit circle definition of the trig functions
+        // vec3 color = vec3((sin(u_time) + 1.0)/2.0, (atan(u_time) + 1.0)/2.0, (cos(u_time) + 1.0)/2.0);
+
+        // gradient from top to bottom - mix between colors over the space of the canvas
+        vec2 uv = gl_FragCoord.xy/u_resolution;
+        vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), uv.y);
         gl_FragColor = vec4(color, 1.0);
     }
 `;
