@@ -32,6 +32,17 @@ const fragmentShader = `
     // varying vec2 v_uv;
     varying vec3 v_position;
 
+    
+    // drawing a rectangle
+    float rect(vec2 pt, vec2 size, vec2 center) {
+        vec2 p = pt - center;
+        vec2 halfsize = size * 0.5;
+
+        float horiz = step(-halfsize.x, p.x) - step(halfsize.x, p.x);
+        float vert = step(-halfsize.y, p.y) - step(halfsize.y, p.y);
+        return horiz * vert;
+    }
+
     void main() {
         // gl_FragColor is an rgba-format value
         // this shader MUST set the value of gl_FragColor
@@ -67,9 +78,22 @@ const fragmentShader = `
         // color.g = step(0.0, v_position.y);
         // gl_FragColor = vec4(color, 1.0);
 
-        vec3 color = vec3(0.0);
-        color.r = smoothstep(0.0, 0.1, v_position.x);
-        color.g = smoothstep(0.0, 0.1, v_position.y);
+        // vec3 color = vec3(0.0);
+        // color.r = smoothstep(0.0, 0.1, v_position.x);
+        // color.g = smoothstep(0.0, 0.1, v_position.y);
+        // gl_FragColor = vec4(color, 1.0);
+
+        // drawing a circle
+        // float in_circle = 1.0 - step(0.5, length(v_position.xy));
+        // vec3 color = vec3(1.0, 1.0, 0.0) * in_circle;
+        // gl_FragColor = vec4(color, 1.0);
+
+        // drawing a rectangle - notice rect method defined above this one
+        float in_rect = rect(v_position.xy, vec2(1.0), vec2(0.0));
+        // if in_rect is 1 - this value evaluates to a yellow
+        // if in_rect is 0 - this vector gets multiplied by zero, thus every component is zero
+        // the color is black
+        vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
         gl_FragColor = vec4(color, 1.0);
     }
 `;
