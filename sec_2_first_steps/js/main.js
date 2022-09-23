@@ -32,6 +32,17 @@ const fragmentShader = `
     // varying vec2 v_uv;
     varying vec3 v_position;
 
+    // create a 2-d rotation matrix
+    mat2 get_rotation_matrix(float theta) {
+        float s = sin(theta);
+        float c = cos(theta);
+        return mat2(c, -s, s, c);
+    }
+
+    // create a 2-d scale matrix
+    mat2 get_scale_matrix(float scale) {
+        return mat2(scale, 0, 0, scale);
+    }
     
     // drawing a rectangle
     float rect(vec2 pt, vec2 size, vec2 center) {
@@ -40,6 +51,16 @@ const fragmentShader = `
 
         float horiz = step(-halfsize.x, p.x) - step(halfsize.x, p.x);
         float vert = step(-halfsize.y, p.y) - step(halfsize.y, p.y);
+        return horiz * vert;
+    }
+    
+    // drawing a rectangle - used for rotating a shape around a point other than the shape's center
+    float modified_rect(vec2 pt, vec2 anchor, vec2 size, vec2 center) {
+        vec2 p = pt - center;
+        vec2 halfsize = size * 0.5;
+
+        float horiz = step(-halfsize.x - anchor.x, p.x) - step(halfsize.x - anchor.x, p.x);
+        float vert = step(-halfsize.y - anchor.y, p.y) - step(halfsize.y - anchor.y, p.y);
         return horiz * vert;
     }
 
@@ -88,11 +109,38 @@ const fragmentShader = `
         // vec3 color = vec3(1.0, 1.0, 0.0) * in_circle;
         // gl_FragColor = vec4(color, 1.0);
 
-        // drawing a rectangle - notice rect method defined above this one
-        float in_rect = rect(v_position.xy, vec2(1.0), vec2(0.0));
+        // drawing a rectangle - notice the rect method defined above the main method
+        // float in_rect = rect(v_position.xy, vec2(1.0), vec2(0.0));
         // if in_rect is 1 - this value evaluates to a yellow
         // if in_rect is 0 - this vector gets multiplied by zero, thus every component is zero
         // the color is black
+        // vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
+        // gl_FragColor = vec4(color, 1.0);
+
+        // moving a shape over time
+        // float radius = 0.5;
+        // to make spin faster or slower, scale u_time
+        // float time = u_time * 2.0;
+        // vec2 center = vec2(cos(time) * radius, sin(time) * radius);
+        // float in_rect = rect(v_position.xy, vec2(0.5), center);
+        // vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
+        // gl_FragColor = vec4(color, 1.0);
+
+        // rotating a shape over time - notice the get_rotation_matrix method defined above the main method
+        // vec2 center = vec2(0.0);
+        // mat2 mat = get_rotation_matrix(u_time);
+        // vec2 pt = mat * v_position.xy;
+        // float in_rect = rect(pt, vec2(0.5), center);
+        // vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
+        // gl_FragColor = vec4(color, 1.0);
+
+        // rotating and scaling a shape over time from a point other than its center - notice the modified_rect method
+        vec2 center = vec2(0.0);
+        mat2 mat_r = get_rotation_matrix(u_time);
+        mat2 mat_s = get_scale_matrix((sin(u_time) + 1.0)/3.0 + 0.5);
+        vec2 pt = (mat_s * mat_r * (v_position.xy - center)) + center;
+        vec2 anchor = vec2(0.15, -0.15);
+        float in_rect = modified_rect(pt, anchor, vec2(0.3), center);
         vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
         gl_FragColor = vec4(color, 1.0);
     }
