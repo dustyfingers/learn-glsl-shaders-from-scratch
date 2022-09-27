@@ -7,12 +7,12 @@ const vertexShader = `
     // in three.js the uv value is passed into the vertex shader behind the scenes
     // but what about if we need the uv in the fragment shader?
     // we use a varying!
-    // varying vec2 v_uv;
+    varying vec2 v_uv;
     varying vec3 v_position;
 
     void main() {
         // assign uv passed into vertx shader to the varying we want to pass to the fragment shader
-        // v_uv = uv;
+        v_uv = uv;
         v_position = position;
 
         // try multiplying the position value passed into vec4 to change the scale of the object!
@@ -29,7 +29,7 @@ const fragmentShader = `
     uniform float u_time;
 
     // varyings are values passed from the vertex shader to the fragment shader
-    // varying vec2 v_uv;
+    varying vec2 v_uv;
     varying vec3 v_position;
 
     // create a 2-d rotation matrix
@@ -135,12 +135,24 @@ const fragmentShader = `
         // gl_FragColor = vec4(color, 1.0);
 
         // rotating and scaling a shape over time from a point other than its center - notice the modified_rect method
-        vec2 center = vec2(0.0);
+        // vec2 center = vec2(0.0);
+        // mat2 mat_r = get_rotation_matrix(u_time);
+        // mat2 mat_s = get_scale_matrix((sin(u_time) + 1.0)/3.0 + 0.5);
+        // vec2 pt = (mat_s * mat_r * (v_position.xy - center)) + center;
+        // vec2 anchor = vec2(0.15, -0.15);
+        // float in_rect = modified_rect(pt, anchor, vec2(0.3), center);
+        // vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
+        // gl_FragColor = vec4(color, 1.0);
+
+        // tiling a square
+        float tile_count = 20.0;
+        vec2 center = vec2(0.5);
         mat2 mat_r = get_rotation_matrix(u_time);
-        mat2 mat_s = get_scale_matrix((sin(u_time) + 1.0)/3.0 + 0.5);
-        vec2 pt = (mat_s * mat_r * (v_position.xy - center)) + center;
-        vec2 anchor = vec2(0.15, -0.15);
-        float in_rect = modified_rect(pt, anchor, vec2(0.3), center);
+        // the fract() method takes a float vale and slices off the whole number part
+        // eg fract(5.7) ==> 0.7
+        vec2 p = fract(v_uv * tile_count);
+        vec2 pt = (mat_r * (p - center)) + center;
+        float in_rect = rect(pt, vec2(0.5), center);
         vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
         gl_FragColor = vec4(color, 1.0);
     }
