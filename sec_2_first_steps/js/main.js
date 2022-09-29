@@ -64,6 +64,12 @@ const fragmentShader = `
         return horiz * vert;
     }
 
+    // draw a circle
+    float circle(vec2 pt, vec2 center, float radius) {
+        vec2 p = pt - center;
+        return 1.0 - step(radius, length(p));
+    }
+
     void main() {
         // gl_FragColor is an rgba-format value
         // this shader MUST set the value of gl_FragColor
@@ -145,15 +151,20 @@ const fragmentShader = `
         // gl_FragColor = vec4(color, 1.0);
 
         // tiling a square
-        float tile_count = 20.0;
-        vec2 center = vec2(0.5);
-        mat2 mat_r = get_rotation_matrix(u_time);
-        // the fract() method takes a float vale and slices off the whole number part
-        // eg fract(5.7) ==> 0.7
-        vec2 p = fract(v_uv * tile_count);
-        vec2 pt = (mat_r * (p - center)) + center;
-        float in_rect = rect(pt, vec2(0.5), center);
-        vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
+        // float tile_count = 20.0;
+        // vec2 center = vec2(0.5);
+        // mat2 mat_r = get_rotation_matrix(u_time);
+        // // the fract() method takes a float vale and slices off the whole number part
+        // // eg fract(5.7) ==> 0.7
+        // vec2 p = fract(v_uv * tile_count);
+        // vec2 pt = (mat_r * (p - center)) + center;
+        // float in_rect = rect(pt, vec2(0.5), center);
+        // vec3 color = vec3(1.0, 1.0, 0.0) * in_rect;
+        // gl_FragColor = vec4(color, 1.0);
+
+        
+        // drawing a circle
+        vec3 color = vec3(1.0, 0.0, 0.0) * circle(v_position.xy, vec2(0.5), 0.3);
         gl_FragColor = vec4(color, 1.0);
     }
 `;
